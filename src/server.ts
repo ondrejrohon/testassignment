@@ -42,6 +42,9 @@ server.on("connection", (socket) => {
         `${MessageType.ListClients}:${Object.keys(clients).join(",")}`
       );
       socket.write(Buffer.concat([response.header, response.payload]));
+    } else if (message.startsWith(MessageType.StartMatch)) {
+      const clientId = message.replace(`${MessageType.StartMatch}:`, "");
+      console.log("start match with", clientId);
     } else {
       // is authorized
       console.log("got safe message", message);
