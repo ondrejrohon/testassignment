@@ -3,8 +3,9 @@ interface Message {
   payload: Buffer;
 }
 
-export function createMessage(payload: Buffer): Message {
+export function createMessage(clientId: string, message: string): Message {
   const header = Buffer.alloc(2);
+  const payload = Buffer.from(JSON.stringify({ clientId, message }));
   header.writeUInt16BE(payload.length, 0);
   return { header, payload };
 }
