@@ -43,8 +43,20 @@ server.on("connection", (socket) => {
       );
       socket.write(Buffer.concat([response.header, response.payload]));
     } else if (message.startsWith(MessageType.StartMatch)) {
-      const clientId = message.replace(`${MessageType.StartMatch}:`, "");
+      const opponentId = message.replace(`${MessageType.StartMatch}:`, "");
       console.log("start match with", clientId);
+
+      if (clients[opponentId]) {
+        const response = createMessage(
+          "",
+          `${MessageType.MatchRequest}:${clientId}`
+        );
+        clients[opponentId].write(
+          Buffer.concat([response.header, response.payload])
+        );
+      } else {
+        console.log("client id not found", opponentId);
+      }
     } else {
       // is authorized
       console.log("got safe message", message);

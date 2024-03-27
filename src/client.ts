@@ -16,6 +16,7 @@ client.on("data", async (data) => {
   const { clientId, message } = JSON.parse(msg.payload.toString());
   console.log(`Received message: ${message} from client: ${clientId}`);
 
+  // receive clientId
   if (message === CLIENT_ID) {
     // server responded with client_id, store it
     myId = clientId;
@@ -26,17 +27,19 @@ client.on("data", async (data) => {
     client.write(Buffer.concat([message.header, message.payload]));
   }
 
+  // answer question
   if (message === QUESTION) {
     const answer = await getInput("Whozdat?\n");
     const message = createMessage("", answer);
     client.write(Buffer.concat([message.header, message.payload]));
   }
 
+  // list clients
   if (message.startsWith(MessageType.ListClients)) {
     const list = message.replace(`${MessageType.ListClients}:`, "").split(",");
     console.log(
       "got list of client ids:",
-      list.filter((item) => item !== myId).join(", ")
+      list.filter((item: string) => item !== myId).join(", ")
     );
 
     const clientId = await getInput(
@@ -53,5 +56,11 @@ client.on("data", async (data) => {
     } else {
       console.log(`this client id doesn't exist`);
     }
+  }
+
+  // get notified of new match
+  if (message.startsWith(MessageType.MatchRequest)) {
+    const opponentId = message.replace(`${MessageType.MatchRequest}:`, "");
+    console.log("new match request from", opponentId);
   }
 });
