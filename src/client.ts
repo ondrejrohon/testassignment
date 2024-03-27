@@ -1,7 +1,8 @@
 import * as net from "net";
 import { createMessage, parseMessage } from "./utils";
-import { ANSWER, CLIENT_ID, QUESTION } from "./constants";
+import { CLIENT_ID, QUESTION } from "./constants";
 import { getInput } from "./input";
+import { MessageType } from "./types";
 
 const client = net.createConnection({ port: 8000, host: "localhost" });
 let id = "";
@@ -20,7 +21,8 @@ client.on("data", async (data) => {
     id = clientId;
     console.log("got client id", id);
 
-    const message = createMessage(id, "test");
+    // get list of clients ids
+    const message = createMessage(id, MessageType.ListClients);
     client.write(Buffer.concat([message.header, message.payload]));
   }
 
@@ -28,5 +30,10 @@ client.on("data", async (data) => {
     const answer = await getInput("Whozdat?");
     const message = createMessage("", answer);
     client.write(Buffer.concat([message.header, message.payload]));
+  }
+
+  if (message.startsWith(MessageType.ListClients)) {
+    const list = message.replace(`${MessageType.ListClients}:`, "");
+    console.log("got list of client ids:", list.split(",").join(", "));
   }
 });

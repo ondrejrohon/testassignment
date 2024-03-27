@@ -1,6 +1,7 @@
 import * as net from "net";
 import { createMessage, parseMessage } from "./utils";
 import { ANSWER, CLIENT_ID, QUESTION } from "./constants";
+import { MessageType } from "./types";
 
 const server = net.createServer();
 const clients: { [id: string]: net.Socket } = {};
@@ -34,6 +35,13 @@ server.on("connection", (socket) => {
       const response = createMessage("", "Wrong answer");
       socket.write(Buffer.concat([response.header, response.payload]));
       socket.end();
+    } else if (message === MessageType.ListClients) {
+      // list clients
+      const response = createMessage(
+        "",
+        `${MessageType.ListClients}:${Object.keys(clients).join(",")}`
+      );
+      socket.write(Buffer.concat([response.header, response.payload]));
     } else {
       // is authorized
       console.log("got safe message", message);
