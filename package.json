@@ -1,0 +1,15 @@
+{
+  "name": "luxonis",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "client": "tsx src/client.ts",
+    "server": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@types/node": "^20.11.30",
+    "net": "^1.0.2",
+    "tsx": "^4.7.1"
+  }
+}
