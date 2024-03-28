@@ -5,11 +5,15 @@
   "license": "MIT",
   "scripts": {
     "client": "tsx src/client.ts",
-    "server": "tsx src/server.ts"
+    "server": "tsx src/server.ts",
+    "test": "vitest"
   },
   "dependencies": {
     "@types/node": "^20.11.30",
     "net": "^1.0.2",
     "tsx": "^4.7.1"
+  },
+  "devDependencies": {
+    "vitest": "^1.4.0"
   }
 }
