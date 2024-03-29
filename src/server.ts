@@ -12,10 +12,17 @@ const matches: { [guesser: string]: { word: string; attempts: number } } = {};
 let askersInMatch: Array<number> = [];
 
 const PORT = 8000;
+const SOCKET = "/tmp/echo.sock";
 const ANSWER = "pass";
 
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+const useSocket = process.env.USE_SOCKET === "1";
+
+server.listen(useSocket ? SOCKET : PORT, () => {
+  if (useSocket) {
+    console.log(`Server listening on socket ${SOCKET}`);
+  } else {
+    console.log(`Server listening on port ${PORT}`);
+  }
 });
 
 server.on("connection", (socket) => {

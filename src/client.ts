@@ -3,7 +3,10 @@ import { MessageType, createMessage, parseMessage } from "./protocol";
 import { getInput } from "./input";
 import { getGuess, listOpponents } from "./commands";
 
-const client = net.createConnection({ port: 8000, host: "localhost" });
+const client =
+  process.env.USE_SOCKET === "1"
+    ? net.createConnection({ path: "/tmp/echo.sock" })
+    : net.createConnection({ port: 8000, host: "localhost" });
 let myId: number | null = null;
 
 client.on("connect", () => {

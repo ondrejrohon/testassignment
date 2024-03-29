@@ -11,6 +11,11 @@
 5. Run `npm run client` to start as many clients app as you want
 6. Follow instructions on screen
 
+## Using IPC
+
+- run server or client with USE_SOCKET=1 env variable to use unix socket instead of port
+- for example `USE_SOCKET=1 npm run server`
+
 ## How to develop
 
 1. insall dependencies same as in previous section
