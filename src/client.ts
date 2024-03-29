@@ -15,62 +15,57 @@ client.on("data", async (data) => {
     `Received message: ${msg.content} from clientId: ${msg.senderId}`
   );
 
-  // receive clientId
+  // answer question
   if (msg.messageId === MessageType.Hello) {
+    const answer = await getInput(`${msg.content}\n`);
+    const payload = Buffer.from(answer);
+    const buffer = createMessage(0, 0, MessageType.Authenticate, payload);
+    client.write(buffer);
+  }
+
+  if (msg.messageId === MessageType.Authenticate) {
     // server responded with client_id, store it
-    myId = parseInt(msg.content, 10);
+    myId = msg.recipientId;
     console.log("got client id", myId);
 
     // get list of clients ids
-    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
-    client.write(buffer);
-  }
-
-  // answer question
-  if (msg.messageId === MessageType.Authenticate) {
-    if (!myId) {
-      throw new Error("client has no id");
-    }
-
-    const answer = await getInput("Whozdat?\n");
-    const payload = Buffer.from(answer);
-    const buffer = createMessage(0, myId, MessageType.Authenticate, payload);
-    client.write(buffer);
+    // const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
+    // client.write(buffer);
   }
 
   // list opponents
-  if ((msg.messageId = MessageType.ListOpponents)) {
-    if (!myId) {
-      throw new Error("client has no id");
-    }
+  // if ((msg.messageId = MessageType.ListOpponents)) {
+  //   if (!myId) {
+  //     throw new Error("client has no id");
+  //   }
 
-    const list = msg.content.split(",");
-    console.log(
-      "got list of client ids:",
-      list.filter((item: string) => parseInt(item, 10) !== myId).join(", ")
-    );
+  //   const list = msg.content.split(",");
+  //   console.log(
+  //     "got list of client ids:",
+  //     list.filter((item: string) => parseInt(item, 10) !== myId).join(", ")
+  //   );
 
-    const opponentId = await getInput(
-      "\n type match client_id to start a match:"
-    );
+  //   const opponentId = await getInput(
+  //     "\n type match client_id to start a match:"
+  //   );
 
-    // validate
-    if (list.includes(opponentId)) {
-      const buffer = createMessage(
-        parseInt(opponentId, 10),
-        myId,
-        MessageType.MatchRequest,
-        null
-      );
-      client.write(buffer);
-    } else {
-      console.log(`this client id doesn't exist`);
-    }
-  }
+  //   // validate
+  //   if (list.includes(opponentId)) {
+  //     const buffer = createMessage(
+  //       parseInt(opponentId, 10),
+  //       myId,
+  //       MessageType.MatchRequest,
+  //       null
+  //     );
+  //     client.write(buffer);
+  //   } else {
+  //     console.log(`this client id doesn't exist`);
+  //   }
+  // }
 
-  // get notified of new match
-  if ((msg.messageId = MessageType.MatchRequest)) {
-    const opponentId = msg.senderId;
-    console.log("new match request from", opponentId);
-  }
+  // // get notified of new match
+  // if ((msg.messageId = MessageType.MatchRequest)) {
+  //   const opponentId = msg.senderId;
+  //   console.log("new match request from", opponentId);
+  // }
 });

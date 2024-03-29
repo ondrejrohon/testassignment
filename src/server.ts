@@ -20,7 +20,12 @@ server.on("connection", (socket) => {
   console.log("Client connected");
 
   // when clients connects, ask for password
-  const buffer = createMessage(0, 0, MessageType.Authenticate);
+  const buffer = createMessage(
+    0,
+    0,
+    MessageType.Hello,
+    Buffer.from("Whozdat?")
+  );
   socket.write(buffer);
 
   socket.on("data", (data) => {
@@ -33,8 +38,7 @@ server.on("connection", (socket) => {
     if (msg.content === ANSWER) {
       // create id and store it
       const id = createRandomId();
-      clients[id] = socket;
-      const response = createMessage(id, 0, MessageType.Authenticate);
+      const response = createMessage(id, 0, MessageType.Authenticate, null);
       socket.write(response);
       return;
       // } else if (!clientId) {

@@ -24,8 +24,10 @@ export enum MessageType {
   Error,
 }
 
-// creates random UInt8 ID, 0 is reserved for messages for server only
-export const createRandomId = () => Math.floor(Math.random() * 254) + 1;
+// creates random UInt8 ID,
+// 0 is reserved for messages for no id (not assigned yet)
+// 1 is server
+export const createRandomId = () => Math.floor(Math.random() * 253) + 2;
 
 const validateUInt8 = (value: number, name: string) => {
   if (value > 255) throw new Error(`${name} is too large`);
@@ -35,7 +37,7 @@ export function createMessage(
   recipientId: number,
   senderId: number,
   messageId: number,
-  payload: Buffer | null = null
+  payload: Buffer | null
 ): Buffer {
   const header = Buffer.alloc(5);
 
