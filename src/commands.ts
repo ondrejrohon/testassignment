@@ -12,7 +12,7 @@ export const giveUp = (client: Socket, opponentId: number, myId: number) => {
   client.write(buffer);
 };
 
-export const getGuess = async (
+export const guess = async (
   client: Socket,
   opponentId: number,
   myId: number,
@@ -29,7 +29,7 @@ export const getGuess = async (
       giveUp(client, opponentId, myId);
       return "";
     } else {
-      return getGuess(client, opponentId, myId, attempt);
+      return guess(client, opponentId, myId, attempt);
     }
   }
 

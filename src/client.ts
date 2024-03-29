@@ -1,7 +1,7 @@
 import * as net from "node:net";
 import { MessageType, createMessage, parseMessage } from "./protocol";
 import { getInput } from "./input";
-import { getGuess, listOpponents } from "./commands";
+import { guess, listOpponents } from "./commands";
 
 const client =
   process.env.USE_SOCKET === "1"
@@ -92,7 +92,7 @@ client.on("data", async (data) => {
       `\nnew match request from ${opponentId}, accept? (y/n)`
     );
     if (res === "y") {
-      const answer = await getGuess(client, msg.senderId, myId, 1);
+      const answer = await guess(client, msg.senderId, myId, 1);
 
       if (answer === "") {
         listOpponents(client, myId);
@@ -142,7 +142,7 @@ client.on("data", async (data) => {
       throw new Error("not authenticated");
     }
     console.log("\nIncorrect guess");
-    const answer = await getGuess(
+    const answer = await guess(
       client,
       msg.senderId,
       myId,
