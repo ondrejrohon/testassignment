@@ -38,6 +38,7 @@ server.on("connection", (socket) => {
     if (msg.messageId === MessageType.Authenticate && msg.content === ANSWER) {
       // create id and store it
       const id = createRandomId();
+      clients[id] = socket;
       const response = createMessage(id, 0, MessageType.Authenticate, null);
       socket.write(response);
       return;
@@ -48,7 +49,9 @@ server.on("connection", (socket) => {
       //   socket.end();
     } else if (msg.messageId === MessageType.ListOpponents) {
       // list clients
-      const clientIds = Object.keys(clients).join(",");
+      const clientIds = Object.keys(clients)
+        .filter((id) => parseInt(id, 10) !== msg.senderId)
+        .join(", ");
       const buffer = createMessage(
         0,
         0,

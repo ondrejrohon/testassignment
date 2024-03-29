@@ -21,6 +21,7 @@ client.on("data", async (data) => {
     const payload = Buffer.from(answer);
     const buffer = createMessage(0, 0, MessageType.Authenticate, payload);
     client.write(buffer);
+    return;
   }
 
   if (msg.messageId === MessageType.Authenticate) {
@@ -29,39 +30,41 @@ client.on("data", async (data) => {
     console.log("got client id", myId);
 
     // get list of clients ids
-    // const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
-    // client.write(buffer);
+    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
+    client.write(buffer);
+    return;
   }
 
   // list opponents
-  // if ((msg.messageId = MessageType.ListOpponents)) {
-  //   if (!myId) {
-  //     throw new Error("client has no id");
-  //   }
+  if (msg.messageId === MessageType.ListOpponents) {
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
 
-  //   const list = msg.content.split(",");
-  //   console.log(
-  //     "got list of client ids:",
-  //     list.filter((item: string) => parseInt(item, 10) !== myId).join(", ")
-  //   );
+    if (msg.content) {
+      console.log("got list of client ids:", msg.content);
+      const list = msg.content.split(", ");
+      const opponentId = await getInput(
+        "\n type match client_id to start a match:"
+      );
+      // validate
+      if (list.includes(opponentId)) {
+        const buffer = createMessage(
+          parseInt(opponentId, 10),
+          myId,
+          MessageType.MatchRequest,
+          null
+        );
+        client.write(buffer);
+      } else {
+        console.log(`this client id doesn't exist`);
+      }
+    } else {
+      console.log("waiting for other players");
+    }
 
-  //   const opponentId = await getInput(
-  //     "\n type match client_id to start a match:"
-  //   );
-
-  //   // validate
-  //   if (list.includes(opponentId)) {
-  //     const buffer = createMessage(
-  //       parseInt(opponentId, 10),
-  //       myId,
-  //       MessageType.MatchRequest,
-  //       null
-  //     );
-  //     client.write(buffer);
-  //   } else {
-  //     console.log(`this client id doesn't exist`);
-  //   }
-  // }
+    return;
+  }
 
   // // get notified of new match
   // if ((msg.messageId = MessageType.MatchRequest)) {
