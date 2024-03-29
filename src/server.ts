@@ -35,7 +35,7 @@ server.on("connection", (socket) => {
     );
 
     // is authorizing
-    if (msg.content === ANSWER) {
+    if (msg.messageId === MessageType.Authenticate && msg.content === ANSWER) {
       // create id and store it
       const id = createRandomId();
       const response = createMessage(id, 0, MessageType.Authenticate, null);
