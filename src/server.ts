@@ -213,5 +213,15 @@ server.on("connection", (socket) => {
       );
       clients[msg.recipientId].write(buffer);
     }
+
+    if (!msg.messageId) {
+      const buffer = createMessage(
+        msg.senderId,
+        1,
+        MessageType.Error,
+        Buffer.from("unknown message id")
+      );
+      clients[msg.senderId].write(buffer);
+    }
   });
 });
