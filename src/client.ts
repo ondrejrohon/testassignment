@@ -70,9 +70,9 @@ client.on("data", async (data) => {
     console.log(msg.content);
   }
 
-  // // get notified of new match
-  // if ((msg.messageId = MessageType.MatchRequest)) {
-  //   const opponentId = msg.senderId;
-  //   console.log("new match request from", opponentId);
-  // }
+  // get notified of new match
+  if (msg.messageId === MessageType.MatchRequest) {
+    const opponentId = msg.senderId;
+    console.log("new match request from", opponentId);
+  }
 });

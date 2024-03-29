@@ -63,11 +63,10 @@ server.on("connection", (socket) => {
       );
       socket.write(buffer);
     } else if (msg.messageId === MessageType.MatchRequest) {
-      const opponentId = msg.senderId;
+      const opponentId = msg.recipientId;
       console.log("start match with", opponentId);
 
       if (clients[opponentId]) {
-        // TODO: get my id here
         const buffer = createMessage(
           opponentId,
           1,
