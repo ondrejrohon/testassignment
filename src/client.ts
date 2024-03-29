@@ -49,11 +49,12 @@ client.on("data", async (data) => {
       );
       // validate
       if (list.includes(opponentId)) {
+        const word = await getInput("\nWord to guess?\n");
         const buffer = createMessage(
           parseInt(opponentId, 10),
           myId,
           MessageType.MatchRequest,
-          null
+          Buffer.from(word)
         );
         client.write(buffer);
       } else {
@@ -72,7 +73,25 @@ client.on("data", async (data) => {
 
   // get notified of new match
   if (msg.messageId === MessageType.MatchRequest) {
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
+
     const opponentId = msg.senderId;
-    console.log("new match request from", opponentId);
+    const res = await getInput(
+      `\nnew match request from ${opponentId}, accept? (y/n)`
+    );
+    if (res === "y") {
+      const answer = await getInput(`\nAttempt #${1} Guess?\n`);
+      const buffer = createMessage(
+        opponentId,
+        myId,
+        MessageType.Guess,
+        Buffer.from(answer)
+      );
+      client.write(buffer);
+    } else {
+      console.log("rejecting");
+    }
   }
 });

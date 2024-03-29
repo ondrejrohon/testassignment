@@ -8,6 +8,7 @@ import {
 
 const server = net.createServer();
 const clients: { [id: string]: net.Socket } = {};
+const matches: { [guesser: string]: { word: string; attempts: number } } = {};
 
 const PORT = 8000;
 const ANSWER = "pass";
@@ -55,12 +56,14 @@ server.on("connection", (socket) => {
       const clientIds = Object.keys(clients)
         .filter((id) => parseInt(id, 10) !== msg.senderId)
         .join(", ");
+
       const buffer = createMessage(
         0,
         0,
         MessageType.ListOpponents,
         Buffer.from(clientIds)
       );
+
       socket.write(buffer);
     } else if (msg.messageId === MessageType.MatchRequest) {
       const opponentId = msg.recipientId;
@@ -71,11 +74,27 @@ server.on("connection", (socket) => {
           opponentId,
           1,
           MessageType.MatchRequest,
-          null
+          Buffer.from(msg.content)
         );
         clients[opponentId].write(buffer);
+        matches[opponentId] = {
+          word: msg.content,
+          attempts: 0,
+        };
       } else {
+        // TODO: send error to client
         console.log("client id not found", opponentId);
+      }
+    } else if (msg.messageId === MessageType.Guess) {
+      // Guess means that player accepted request and started guessing
+      const opponentId = msg.recipientId;
+      const match = matches[opponentId];
+      if (msg.content === match.word) {
+        // TODO: inform of win
+      } else {
+        // increment attempts
+        match.attempts++;
+        // TODO: inform of wrong answer
       }
     }
   });
