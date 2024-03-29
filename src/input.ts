@@ -2,7 +2,10 @@ import readline from "readline";
 
 const validate = (input: string) => input.trim() !== "";
 
-export function getInput(query: string): Promise<string> {
+export function getInput(
+  query: string,
+  validationFn = validate
+): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -10,8 +13,7 @@ export function getInput(query: string): Promise<string> {
 
   return new Promise((resolve) => {
     rl.question(query, async (input) => {
-      if (validate(input)) {
-        console.log(`You entered: ${input}`);
+      if (validationFn(input)) {
         rl.close();
         resolve(input);
       } else {

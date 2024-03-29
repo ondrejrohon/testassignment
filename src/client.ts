@@ -1,6 +1,7 @@
 import * as net from "net";
 import { MessageType, createMessage, parseMessage } from "./protocol";
 import { getInput } from "./input";
+import { getGuess, listOpponents } from "./commands";
 
 const client = net.createConnection({ port: 8000, host: "localhost" });
 let myId: number | null = null;
@@ -30,9 +31,7 @@ client.on("data", async (data) => {
     console.log("got client id", myId);
 
     // get list of opponents
-    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
-    client.write(buffer);
-    return;
+    listOpponents(client, myId);
   }
 
   // list opponents
@@ -45,7 +44,7 @@ client.on("data", async (data) => {
       console.log("got list of client ids:", msg.content);
       const list = msg.content.split(", ");
       const opponentId = await getInput(
-        "\n type match client_id to start a match:"
+        "\n type match client_id to start a match:\n"
       );
       // validate
       if (list.includes(opponentId)) {
@@ -82,7 +81,13 @@ client.on("data", async (data) => {
       `\nnew match request from ${opponentId}, accept? (y/n)`
     );
     if (res === "y") {
-      const answer = await getInput(`\nAttempt #${1} Guess?\n`);
+      const answer = await getGuess(client, msg.senderId, myId, 1);
+
+      if (answer === "") {
+        listOpponents(client, myId);
+        return;
+      }
+
       const buffer = createMessage(
         opponentId,
         myId,
@@ -110,9 +115,7 @@ client.on("data", async (data) => {
     }
 
     // get list of opponents
-    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
-    client.write(buffer);
-    return;
+    listOpponents(client, myId);
   }
 
   if (msg.messageId === MessageType.Guess) {
@@ -128,8 +131,11 @@ client.on("data", async (data) => {
       throw new Error("not authenticated");
     }
     console.log("\nIncorrect guess");
-    const answer = await getInput(
-      `\nAttempt #${parseInt(msg.content, 10) + 1} Guess?\n`
+    const answer = await getGuess(
+      client,
+      msg.senderId,
+      myId,
+      parseInt(msg.content, 10)
     );
     const buffer = createMessage(
       msg.senderId,
@@ -147,7 +153,15 @@ client.on("data", async (data) => {
 
     console.log(`\nGuesser won in ${parseInt(msg.content, 10) + 1} attempts.`);
     // get list of opponents
-    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
-    client.write(buffer);
+    listOpponents(client, myId);
+  }
+
+  if (msg.messageId === MessageType.GiveUp) {
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
+
+    console.log("\nOpponent gave up.\n");
+    listOpponents(client, myId);
   }
 });

@@ -139,5 +139,18 @@ server.on("connection", (socket) => {
       );
       clients[msg.recipientId].write(buffer);
     }
+
+    if (msg.messageId === MessageType.GiveUp) {
+      // delete match
+      delete matches[msg.senderId];
+      // inform oponent
+      const buffer = createMessage(
+        msg.recipientId,
+        msg.senderId,
+        MessageType.GiveUp,
+        null
+      );
+      clients[msg.recipientId].write(buffer);
+    }
   });
 });
