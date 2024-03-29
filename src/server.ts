@@ -9,6 +9,7 @@ import {
 const server = net.createServer();
 const clients: { [id: string]: net.Socket } = {};
 const matches: { [guesser: string]: { word: string; attempts: number } } = {};
+let askersInMatch: Array<number> = [];
 
 const PORT = 8000;
 const ANSWER = "pass";
@@ -82,6 +83,19 @@ server.on("connection", (socket) => {
     // match request
     if (msg.messageId === MessageType.MatchRequest) {
       const opponentId = msg.recipientId;
+
+      // check if user is in other match atm
+      if (matches[opponentId] || askersInMatch.includes(opponentId)) {
+        const buffer = createMessage(
+          msg.senderId,
+          1,
+          MessageType.Error,
+          Buffer.from("user is in other match atm")
+        );
+        clients[msg.senderId].write(buffer);
+        return;
+      }
+
       console.log("start match with", opponentId);
 
       if (clients[opponentId]) {
@@ -107,7 +121,13 @@ server.on("connection", (socket) => {
       // Guess means that player accepted request and started guessing
       const opponentId = msg.senderId;
       const match = matches[opponentId];
+      askersInMatch.push(msg.recipientId);
       if (msg.content === match.word) {
+        // delete match
+        delete matches[msg.senderId];
+        askersInMatch = askersInMatch.filter(
+          (askers) => askers !== msg.recipientId
+        );
         // inform guesser
         const buffer = createMessage(
           1,
@@ -164,6 +184,9 @@ server.on("connection", (socket) => {
     if (msg.messageId === MessageType.GiveUp) {
       // delete match
       delete matches[msg.senderId];
+      askersInMatch = askersInMatch.filter(
+        (askers) => askers !== msg.recipientId
+      );
       // inform oponent
       const buffer = createMessage(
         msg.recipientId,

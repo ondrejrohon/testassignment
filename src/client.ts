@@ -67,7 +67,14 @@ client.on("data", async (data) => {
   }
 
   if (msg.messageId === MessageType.Error) {
-    console.log(msg.content);
+    console.log("\n" + msg.content, "\n");
+
+    // TODO: this should be stored as constant
+    if (msg.content === "user is in other match atm") {
+      if (myId) {
+        listOpponents(client, myId);
+      }
+    }
   }
 
   // get notified of new match
