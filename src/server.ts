@@ -203,5 +203,15 @@ server.on("connection", (socket) => {
       );
       clients[msg.recipientId].write(buffer);
     }
+
+    if (msg.messageId === MessageType.Hint) {
+      const buffer = createMessage(
+        msg.recipientId,
+        msg.senderId,
+        MessageType.Hint,
+        Buffer.from(msg.content)
+      );
+      clients[msg.recipientId].write(buffer);
+    }
   });
 });

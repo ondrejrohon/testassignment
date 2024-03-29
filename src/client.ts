@@ -1,7 +1,7 @@
 import * as net from "node:net";
 import { MessageType, createMessage, parseMessage } from "./protocol";
 import { getInput } from "./input";
-import { guess, listOpponents } from "./commands";
+import { guess, hint, listOpponents } from "./commands";
 
 const client =
   process.env.USE_SOCKET === "1"
@@ -60,6 +60,7 @@ client.on("data", async (data) => {
         );
         client.write(buffer);
         console.log("\nWaiting for opponent to respond.\n");
+        hint(client, parseInt(opponentId, 10), myId);
       } else {
         console.log(`this client id doesn't exist`);
       }
@@ -177,5 +178,10 @@ client.on("data", async (data) => {
 
     console.log("\nOpponent gave up.\n");
     listOpponents(client, myId);
+  }
+
+  // show hint
+  if (msg.messageId === MessageType.Hint) {
+    console.log("Oppenent sent you a hint: ", msg.content);
   }
 });

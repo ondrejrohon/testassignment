@@ -35,3 +35,19 @@ export const guess = async (
 
   return answer;
 };
+
+export const hint = async (
+  client: Socket,
+  opponentId: number,
+  myId: number
+): Promise<void> => {
+  const res = await getInput(`\nSend hint to opponent:\n`);
+  const buffer = createMessage(
+    opponentId,
+    myId,
+    MessageType.Hint,
+    Buffer.from(res)
+  );
+  client.write(buffer);
+  return hint(client, opponentId, myId);
+};
