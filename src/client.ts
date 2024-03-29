@@ -1,4 +1,4 @@
-import * as net from "net";
+import * as net from "node:net";
 import { MessageType, createMessage, parseMessage } from "./protocol";
 import { getInput } from "./input";
 import { getGuess, listOpponents } from "./commands";

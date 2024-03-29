@@ -1,4 +1,4 @@
-import { type Socket } from "net";
+import { type Socket } from "node:net";
 import { getInput } from "./input";
 import { MessageType, createMessage } from "./protocol";
 
