@@ -18,6 +18,8 @@ server.listen(PORT, () => {
 });
 
 server.on("connection", (socket) => {
+  let clientId: number | null;
+
   console.log("Client connected");
 
   // when clients connects, ask for password
@@ -29,6 +31,13 @@ server.on("connection", (socket) => {
   );
   socket.write(buffer);
 
+  socket.on("close", () => {
+    if (clientId) {
+      console.log("client closed", clientId);
+      delete clients[clientId];
+    }
+  });
+
   socket.on("data", (data) => {
     const msg = parseMessage(data);
     console.log(
@@ -39,6 +48,7 @@ server.on("connection", (socket) => {
     if (msg.messageId === MessageType.Authenticate && msg.content === ANSWER) {
       // create id and store it
       const id = createRandomId();
+      clientId = id;
       clients[id] = socket;
       const response = createMessage(id, 0, MessageType.Authenticate, null);
       socket.write(response);
