@@ -10,6 +10,7 @@
 4. Run `npm run server` to start server app
 5. Run `npm run client` to start as many clients app as you want
 6. Follow instructions on screen
+7. To start a game, you need to answer with password: `pass`
 
 ## Using IPC
 
@@ -21,3 +22,8 @@
 1. insall dependencies same as in previous section
 2. run `npm run dev:client` to start client in watch mode
 3. run `npm run dev:server` to start server in watch mode
+4. run `npm run test` to run tests
+
+## How could this be improved?
+
+In many ways. Happy to discuss it with you. Feel free to ask any questions.

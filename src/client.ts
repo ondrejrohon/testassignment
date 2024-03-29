@@ -59,6 +59,7 @@ client.on("data", async (data) => {
           Buffer.from(word)
         );
         client.write(buffer);
+        console.log("\nWaiting for opponent to respond.\n");
       } else {
         console.log(`this client id doesn't exist`);
       }
