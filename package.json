@@ -4,16 +4,20 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "client": "tsx src/client.ts",
-    "server": "tsx src/server.ts",
+    "client": "ts-node src/client.ts",
+    "server": "ts-node src/server.ts",
+    "dev:client": "nodemon --watch 'src/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/client.ts",
+    "dev:server": "nodemon --watch 'src/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/server.ts",
     "test": "vitest"
   },
   "dependencies": {
     "@types/node": "^20.11.30",
     "net": "^1.0.2",
-    "tsx": "^4.7.1"
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.3",
     "vitest": "^1.4.0"
   }
 }
