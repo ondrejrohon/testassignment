@@ -34,7 +34,7 @@ server.on("connection", (socket) => {
       `Received message: ${msg.content} from client: ${msg.senderId}`
     );
 
-    // is authorizing
+    // is authorizing, correct answer
     if (msg.messageId === MessageType.Authenticate && msg.content === ANSWER) {
       // create id and store it
       const id = createRandomId();
@@ -42,11 +42,14 @@ server.on("connection", (socket) => {
       const response = createMessage(id, 0, MessageType.Authenticate, null);
       socket.write(response);
       return;
-      // } else if (!clientId) {
-      //   // is not authorized and answered wrong
-      //   const response = createMessage("", "Wrong answer");
-      //   socket.write(Buffer.concat([response.header, response.payload]));
-      //   socket.end();
+    } else if (
+      msg.messageId === MessageType.Authenticate &&
+      msg.content !== ANSWER
+    ) {
+      // authorizing, wrong answer
+      const buffer = createMessage(0, 1, MessageType.Error, Buffer.from("bye"));
+      socket.write(buffer);
+      socket.end();
     } else if (msg.messageId === MessageType.ListOpponents) {
       // list clients
       const clientIds = Object.keys(clients)

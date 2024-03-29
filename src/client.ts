@@ -66,6 +66,10 @@ client.on("data", async (data) => {
     return;
   }
 
+  if (msg.messageId === MessageType.Error) {
+    console.log(msg.content);
+  }
+
   // // get notified of new match
   // if ((msg.messageId = MessageType.MatchRequest)) {
   //   const opponentId = msg.senderId;
