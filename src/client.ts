@@ -11,9 +11,9 @@ client.on("connect", () => {
 
 client.on("data", async (data) => {
   const msg = parseMessage(data);
-  console.log(
-    `Received message: ${msg.content} from clientId: ${msg.senderId}`
-  );
+  // console.log(
+  //   `Received message: ${msg.content} from clientId: ${msg.senderId}`
+  // );
 
   // answer question
   if (msg.messageId === MessageType.Hello) {
@@ -137,6 +137,17 @@ client.on("data", async (data) => {
       MessageType.Guess,
       Buffer.from(answer)
     );
+    client.write(buffer);
+  }
+
+  if (msg.messageId === MessageType.Win) {
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
+
+    console.log(`\nGuesser won in ${parseInt(msg.content, 10) + 1} attempts.`);
+    // get list of opponents
+    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
     client.write(buffer);
   }
 });

@@ -90,7 +90,23 @@ server.on("connection", (socket) => {
       const opponentId = msg.senderId;
       const match = matches[opponentId];
       if (msg.content === match.word) {
-        // TODO: inform of win
+        // inform guesser
+        const buffer = createMessage(
+          1,
+          msg.recipientId,
+          MessageType.Win,
+          Buffer.from(String(match.attempts))
+        );
+        clients[msg.recipientId].write(buffer);
+        // inform asker
+        const bufferAsker = createMessage(
+          1,
+          msg.senderId,
+          MessageType.Win,
+          Buffer.from(String(match.attempts))
+        );
+        clients[msg.senderId].write(bufferAsker);
+        delete matches[msg.senderId];
       } else {
         // increment attempts
         match.attempts++;
