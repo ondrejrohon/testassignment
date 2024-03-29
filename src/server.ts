@@ -43,15 +43,17 @@ server.on("connection", (socket) => {
       const response = createMessage(id, 0, MessageType.Authenticate, null);
       socket.write(response);
       return;
-    } else if (
-      msg.messageId === MessageType.Authenticate &&
-      msg.content !== ANSWER
-    ) {
-      // authorizing, wrong answer
+    }
+
+    // authorizing, wrong answer
+    if (msg.messageId === MessageType.Authenticate && msg.content !== ANSWER) {
       const buffer = createMessage(0, 1, MessageType.Error, Buffer.from("bye"));
       socket.write(buffer);
       socket.end();
-    } else if (msg.messageId === MessageType.ListOpponents) {
+    }
+
+    // list opponents
+    if (msg.messageId === MessageType.ListOpponents) {
       // list clients
       const clientIds = Object.keys(clients)
         .filter((id) => parseInt(id, 10) !== msg.senderId)
@@ -65,7 +67,10 @@ server.on("connection", (socket) => {
       );
 
       socket.write(buffer);
-    } else if (msg.messageId === MessageType.MatchRequest) {
+    }
+
+    // match request
+    if (msg.messageId === MessageType.MatchRequest) {
       const opponentId = msg.recipientId;
       console.log("start match with", opponentId);
 
@@ -85,7 +90,10 @@ server.on("connection", (socket) => {
         // TODO: send error to client
         console.log("client id not found", opponentId);
       }
-    } else if (msg.messageId === MessageType.Guess) {
+    }
+
+    // guess
+    if (msg.messageId === MessageType.Guess) {
       // Guess means that player accepted request and started guessing
       const opponentId = msg.senderId;
       const match = matches[opponentId];
@@ -127,7 +135,10 @@ server.on("connection", (socket) => {
         );
         clients[msg.senderId].write(feedback);
       }
-    } else if (msg.messageId === MessageType.RejectMatch) {
+    }
+
+    // reject
+    if (msg.messageId === MessageType.RejectMatch) {
       // delete match
       delete matches[msg.senderId];
       // inform oponent
