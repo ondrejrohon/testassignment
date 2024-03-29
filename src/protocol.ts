@@ -18,6 +18,7 @@ export enum MessageType {
   MatchRequest,
   RejectMatch,
   Guess,
+  IncorrectGuess,
   Hint,
   GiveUp,
   Win,

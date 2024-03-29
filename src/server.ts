@@ -87,14 +87,29 @@ server.on("connection", (socket) => {
       }
     } else if (msg.messageId === MessageType.Guess) {
       // Guess means that player accepted request and started guessing
-      const opponentId = msg.recipientId;
+      const opponentId = msg.senderId;
       const match = matches[opponentId];
       if (msg.content === match.word) {
         // TODO: inform of win
       } else {
         // increment attempts
         match.attempts++;
-        // TODO: inform of wrong answer
+        const content = Buffer.from(`${match.attempts},${msg.content}`);
+        const buffer = createMessage(
+          msg.recipientId,
+          msg.senderId,
+          MessageType.Guess,
+          content
+        );
+        clients[msg.recipientId].write(buffer);
+        // inform guesser of incorrect answer
+        const feedback = createMessage(
+          msg.senderId,
+          msg.recipientId,
+          MessageType.IncorrectGuess,
+          Buffer.from(String(match.attempts))
+        );
+        clients[msg.senderId].write(feedback);
       }
     } else if (msg.messageId === MessageType.RejectMatch) {
       // delete match

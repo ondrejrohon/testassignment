@@ -114,4 +114,29 @@ client.on("data", async (data) => {
     client.write(buffer);
     return;
   }
+
+  if (msg.messageId === MessageType.Guess) {
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
+    const [attempt, word] = msg.content.split(",");
+    console.log(`Oponnent's guess #${attempt} is: ${word}`);
+  }
+
+  if (msg.messageId === MessageType.IncorrectGuess) {
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
+    console.log("\nIncorrect guess");
+    const answer = await getInput(
+      `\nAttempt #${parseInt(msg.content, 10) + 1} Guess?\n`
+    );
+    const buffer = createMessage(
+      msg.senderId,
+      myId,
+      MessageType.Guess,
+      Buffer.from(answer)
+    );
+    client.write(buffer);
+  }
 });
