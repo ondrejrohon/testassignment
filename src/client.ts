@@ -1,11 +1,9 @@
 import * as net from "net";
-import { createMessage, parseMessage } from "./utils";
-import { CLIENT_ID, QUESTION } from "./constants";
+import { MessageType, createMessage, parseMessage } from "./protocol";
 import { getInput } from "./input";
-import { MessageType } from "./types";
 
 const client = net.createConnection({ port: 8000, host: "localhost" });
-let myId = "";
+let myId: number | null = null;
 
 client.on("connect", () => {
   console.log("Connected to server");
@@ -13,54 +11,66 @@ client.on("connect", () => {
 
 client.on("data", async (data) => {
   const msg = parseMessage(data);
-  const { clientId, message } = JSON.parse(msg.payload.toString());
-  console.log(`Received message: ${message} from client: ${clientId}`);
+  console.log(
+    `Received message: ${msg.content} from clientId: ${msg.senderId}`
+  );
 
   // receive clientId
-  if (message === CLIENT_ID) {
+  if (msg.messageId === MessageType.Hello) {
     // server responded with client_id, store it
-    myId = clientId;
+    myId = parseInt(msg.content, 10);
     console.log("got client id", myId);
 
     // get list of clients ids
-    const message = createMessage(myId, MessageType.ListClients);
-    client.write(Buffer.concat([message.header, message.payload]));
+    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
+    client.write(buffer);
   }
 
   // answer question
-  if (message === QUESTION) {
+  if (msg.messageId === MessageType.Authenticate) {
+    if (!myId) {
+      throw new Error("client has no id");
+    }
+
     const answer = await getInput("Whozdat?\n");
-    const message = createMessage("", answer);
-    client.write(Buffer.concat([message.header, message.payload]));
+    const payload = Buffer.from(answer);
+    const buffer = createMessage(0, myId, MessageType.Authenticate, payload);
+    client.write(buffer);
   }
 
-  // list clients
-  if (message.startsWith(MessageType.ListClients)) {
-    const list = message.replace(`${MessageType.ListClients}:`, "").split(",");
+  // list opponents
+  if ((msg.messageId = MessageType.ListOpponents)) {
+    if (!myId) {
+      throw new Error("client has no id");
+    }
+
+    const list = msg.content.split(",");
     console.log(
       "got list of client ids:",
-      list.filter((item: string) => item !== myId).join(", ")
+      list.filter((item: string) => parseInt(item, 10) !== myId).join(", ")
     );
 
-    const clientId = await getInput(
+    const opponentId = await getInput(
       "\n type match client_id to start a match:"
     );
 
     // validate
-    if (list.includes(clientId)) {
-      const message = createMessage(
+    if (list.includes(opponentId)) {
+      const buffer = createMessage(
+        parseInt(opponentId, 10),
         myId,
-        `${MessageType.StartMatch}:${clientId}`
+        MessageType.MatchRequest,
+        null
       );
-      client.write(Buffer.concat([message.header, message.payload]));
+      client.write(buffer);
     } else {
       console.log(`this client id doesn't exist`);
     }
   }
 
   // get notified of new match
-  if (message.startsWith(MessageType.MatchRequest)) {
-    const opponentId = message.replace(`${MessageType.MatchRequest}:`, "");
+  if ((msg.messageId = MessageType.MatchRequest)) {
+    const opponentId = msg.senderId;
     console.log("new match request from", opponentId);
   }
 });
