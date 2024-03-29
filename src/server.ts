@@ -72,7 +72,7 @@ server.on("connection", (socket) => {
       if (clients[opponentId]) {
         const buffer = createMessage(
           opponentId,
-          1,
+          msg.senderId,
           MessageType.MatchRequest,
           Buffer.from(msg.content)
         );
@@ -96,6 +96,17 @@ server.on("connection", (socket) => {
         match.attempts++;
         // TODO: inform of wrong answer
       }
+    } else if (msg.messageId === MessageType.RejectMatch) {
+      // delete match
+      delete matches[msg.senderId];
+      // inform oponent
+      const buffer = createMessage(
+        msg.recipientId,
+        msg.senderId,
+        MessageType.RejectMatch,
+        null
+      );
+      clients[msg.recipientId].write(buffer);
     }
   });
 });

@@ -29,7 +29,7 @@ client.on("data", async (data) => {
     myId = msg.recipientId;
     console.log("got client id", myId);
 
-    // get list of clients ids
+    // get list of opponents
     const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
     client.write(buffer);
     return;
@@ -91,7 +91,27 @@ client.on("data", async (data) => {
       );
       client.write(buffer);
     } else {
-      console.log("rejecting");
+      const buffer = createMessage(
+        opponentId,
+        myId,
+        MessageType.RejectMatch,
+        null
+      );
+      client.write(buffer);
     }
+  }
+
+  // opponent rejected match
+  if (msg.messageId === MessageType.RejectMatch) {
+    console.log("Match was rejected by oponnent.\n");
+
+    if (!myId) {
+      throw new Error("not authenticated");
+    }
+
+    // get list of opponents
+    const buffer = createMessage(0, myId, MessageType.ListOpponents, null);
+    client.write(buffer);
+    return;
   }
 });
