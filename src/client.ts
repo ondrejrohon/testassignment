@@ -137,6 +137,7 @@ client.on("data", async (data) => {
     console.log(`Oponnent's guess #${attempt} is: ${word}`);
   }
 
+  // incorrect guess
   if (msg.messageId === MessageType.IncorrectGuess) {
     if (!myId) {
       throw new Error("not authenticated");
@@ -157,6 +158,7 @@ client.on("data", async (data) => {
     client.write(buffer);
   }
 
+  // win
   if (msg.messageId === MessageType.Win) {
     if (!myId) {
       throw new Error("not authenticated");
@@ -167,6 +169,7 @@ client.on("data", async (data) => {
     listOpponents(client, myId);
   }
 
+  // give up
   if (msg.messageId === MessageType.GiveUp) {
     if (!myId) {
       throw new Error("not authenticated");
