@@ -12,14 +12,14 @@
 6. Follow instructions on screen
 7. To start a game, you need to answer with password: `pass`
 
-## Using IPC
+## Using Unix socket
 
 - run server or client with USE_SOCKET=1 env variable to use unix socket instead of port
 - for example `USE_SOCKET=1 npm run server`
 
 ## How to develop
 
-1. insall dependencies same as in previous section
+1. install dependencies same as in previous section
 2. run `npm run dev:client` to start client in watch mode
 3. run `npm run dev:server` to start server in watch mode
 4. run `npm run test` to run tests
